@@ -1,0 +1,208 @@
+using System;
+using System.Linq;
+
+namespace Lab4CSharp
+{
+    internal class Program
+    {
+        static void Main(string[] args)
+        {
+            Console.WriteLine("Lab 4 CSharp");
+            //task1();
+            //task2();
+            //task3();
+        }
+    }
+
+    public static class Tasks
+    {
+        public static void Task1()
+        {
+            Romb[] rombs =
+            {
+                new Romb(5, 7, 1),
+                new Romb(4, 4, 2),
+                new Romb(6, 8, 3)
+            };
+
+            int squareCount = 0;
+            foreach (var r in rombs)
+            {
+                Console.WriteLine((string)r);
+                if (r) squareCount++;
+            }
+
+            Console.WriteLine($"Кількість квадратів: {squareCount}");
+        }
+
+        public static void Task2()
+        {
+            VectorUshort vector = new VectorUshort(5, 10);
+            vector.Print();
+        }
+
+        public static void Task3()
+        {
+            MatrixUshort matrix = new MatrixUshort(3, 3, 5);
+            matrix.Print();
+        }
+    }
+
+    class Romb
+    {
+        public int A { get; set; }
+        public int D1 { get; set; }
+        public int Color { get; set; }
+
+        public Romb(int a, int d1, int color)
+        {
+            A = a;
+            D1 = d1;
+            Color = color;
+        }
+
+        public int this[int index]
+        {
+            get
+            {
+                return index switch
+                {
+                    0 => A,
+                    1 => D1,
+                    2 => Color,
+                    _ => throw new IndexOutOfRangeException("Невірний індекс")
+                };
+            }
+            set
+            {
+                switch (index)
+                {
+                    case 0: A = value; break;
+                    case 1: D1 = value; break;
+                    case 2: Color = value; break;
+                    default: throw new IndexOutOfRangeException("Невірний індекс");
+                }
+            }
+        }
+
+        public static Romb operator ++(Romb r)
+        {
+            r.A++;
+            r.D1++;
+            return r;
+        }
+
+        public static Romb operator --(Romb r)
+        {
+            r.A--;
+            r.D1--;
+            return r;
+        }
+
+        public static bool operator true(Romb r) => r.D1 == r.A * Math.Sqrt(2);
+        public static bool operator false(Romb r) => !(r.D1 == r.A * Math.Sqrt(2));
+
+        public static Romb operator *(Romb r, int scalar)
+        {
+            return new Romb(r.A * scalar, r.D1 * scalar, r.Color);
+        }
+
+        public static implicit operator string(Romb r)
+        {
+            return $"Сторона: {r.A}, Діагональ: {r.D1}, Колір: {r.Color}";
+        }
+
+        public static implicit operator Romb(string data)
+        {
+            var parts = data.Split(',').Select(int.Parse).ToArray();
+            if (parts.Length != 3) throw new FormatException("Невірний формат рядка");
+            return new Romb(parts[0], parts[1], parts[2]);
+        }
+    }
+
+    class VectorUshort
+    {
+        protected ushort[] ArrayUShort;
+        protected uint num;
+        protected uint codeError;
+        static uint num_vs;
+
+        public VectorUshort()
+        {
+            num = 1;
+            ArrayUShort = new ushort[num];
+            num_vs++;
+        }
+
+        public VectorUshort(uint size)
+        {
+            num = size;
+            ArrayUShort = new ushort[num];
+            num_vs++;
+        }
+
+        public VectorUshort(uint size, ushort value)
+        {
+            num = size;
+            ArrayUShort = Enumerable.Repeat(value, (int)num).ToArray();
+            num_vs++;
+        }
+
+        ~VectorUshort()
+        {
+            Console.WriteLine("Вектор знищено.");
+        }
+
+        public void Print()
+        {
+            Console.WriteLine("Вміст вектора: " + string.Join(", ", ArrayUShort));
+        }
+    }
+
+    class MatrixUshort
+    {
+        protected ushort[,] ShortIntArray;
+        protected int n, m;
+        protected int codeError;
+        static int num_m;
+
+        public MatrixUshort()
+        {
+            n = 1; m = 1;
+            ShortIntArray = new ushort[n, m];
+            num_m++;
+        }
+
+        public MatrixUshort(int rows, int cols)
+        {
+            n = rows; m = cols;
+            ShortIntArray = new ushort[n, m];
+            num_m++;
+        }
+
+        public MatrixUshort(int rows, int cols, ushort value)
+        {
+            n = rows; m = cols;
+            ShortIntArray = new ushort[n, m];
+            for (int i = 0; i < n; i++)
+                for (int j = 0; j < m; j++)
+                    ShortIntArray[i, j] = value;
+            num_m++;
+        }
+
+        ~MatrixUshort()
+        {
+            Console.WriteLine("Матриця знищена.");
+        }
+
+        public void Print()
+        {
+            for (int i = 0; i < n; i++)
+            {
+                for (int j = 0; j < m; j++)
+                    Console.Write(ShortIntArray[i, j] + " ");
+                Console.WriteLine();
+            }
+        }
+    }
+}
