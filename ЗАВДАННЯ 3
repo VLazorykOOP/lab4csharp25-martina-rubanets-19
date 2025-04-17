@@ -1,0 +1,275 @@
+using System;
+
+namespace MatrixUshortApp
+{
+    public class MatrixUshort
+    {
+        // Поля
+        protected ushort[,] ShortIntArray;
+        protected int n, m;
+        protected int codeError;
+        protected static int num_m = 0;
+
+        // Конструктори
+        public MatrixUshort()
+        {
+            n = 1;
+            m = 1;
+            ShortIntArray = new ushort[n, m];
+            num_m++;
+        }
+
+        public MatrixUshort(int n, int m)
+        {
+            this.n = n;
+            this.m = m;
+            ShortIntArray = new ushort[n, m];
+            num_m++;
+        }
+
+        public MatrixUshort(int n, int m, ushort initialValue)
+        {
+            this.n = n;
+            this.m = m;
+            ShortIntArray = new ushort[n, m];
+            for (int i = 0; i < n; i++)
+                for (int j = 0; j < m; j++)
+                    ShortIntArray[i, j] = initialValue;
+            num_m++;
+        }
+
+        // Деструктор
+        ~MatrixUshort()
+        {
+            Console.WriteLine("Матриця знищена");
+            num_m--;
+        }
+
+        // Статичний метод для підрахунку кількості матриць
+        public static int GetCount()
+        {
+            return num_m;
+        }
+
+        // Введення елементів матриці
+        public void InputElements()
+        {
+            for (int i = 0; i < n; i++)
+                for (int j = 0; j < m; j++)
+                {
+                    Console.WriteLine($"Введіть елемент [{i},{j}]: ");
+                    ShortIntArray[i, j] = ushort.Parse(Console.ReadLine());
+                }
+        }
+
+        // Виведення елементів матриці
+        public void Print()
+        {
+            for (int i = 0; i < n; i++)
+            {
+                for (int j = 0; j < m; j++)
+                    Console.Write(ShortIntArray[i, j] + "\t");
+                Console.WriteLine();
+            }
+        }
+
+        // Властивості
+        public int Rows => n;
+        public int Columns => m;
+        public int CodeError
+        {
+            get { return codeError; }
+            set { codeError = value; }
+        }
+
+        // Індексатор для доступу до елементів
+        public ushort this[int i, int j]
+        {
+            get
+            {
+                if (i < 0 || i >= n || j < 0 || j >= m)
+                {
+                    codeError = -1;
+                    return 0;
+                }
+                return ShortIntArray[i, j];
+            }
+            set
+            {
+                if (i < 0 || i >= n || j < 0 || j >= m)
+                {
+                    codeError = -1;
+                }
+                else
+                {
+                    ShortIntArray[i, j] = value;
+                }
+            }
+        }
+
+        public ushort this[int k]
+        {
+            get
+            {
+                int i = k / m;
+                int j = k % m;
+                if (i < 0 || i >= n || j < 0 || j >= m)
+                {
+                    codeError = -1;
+                    return 0;
+                }
+                return ShortIntArray[i, j];
+            }
+            set
+            {
+                int i = k / m;
+                int j = k % m;
+                if (i < 0 || i >= n || j < 0 || j >= m)
+                {
+                    codeError = -1;
+                }
+                else
+                {
+                    ShortIntArray[i, j] = value;
+                }
+            }
+        }
+
+        // Операції
+        public static MatrixUshort operator +(MatrixUshort m1, MatrixUshort m2)
+        {
+            if (m1.n != m2.n || m1.m != m2.m)
+                return m1; // Повертаємо першу матрицю, якщо розміри не збігаються
+            MatrixUshort result = new MatrixUshort(m1.n, m1.m);
+            for (int i = 0; i < m1.n; i++)
+                for (int j = 0; j < m1.m; j++)
+                    result.ShortIntArray[i, j] = (ushort)(m1.ShortIntArray[i, j] + m2.ShortIntArray[i, j]);
+            return result;
+        }
+
+        public static MatrixUshort operator +(MatrixUshort m1, ushort scalar)
+        {
+            MatrixUshort result = new MatrixUshort(m1.n, m1.m);
+            for (int i = 0; i < m1.n; i++)
+                for (int j = 0; j < m1.m; j++)
+                    result.ShortIntArray[i, j] = (ushort)(m1.ShortIntArray[i, j] + scalar);
+            return result;
+        }
+
+        public static MatrixUshort operator -(MatrixUshort m1, MatrixUshort m2)
+        {
+            if (m1.n != m2.n || m1.m != m2.m)
+                return m1; // Повертаємо першу матрицю, якщо розміри не збігаються
+            MatrixUshort result = new MatrixUshort(m1.n, m1.m);
+            for (int i = 0; i < m1.n; i++)
+                for (int j = 0; j < m1.m; j++)
+                    result.ShortIntArray[i, j] = (ushort)(m1.ShortIntArray[i, j] - m2.ShortIntArray[i, j]);
+            return result;
+        }
+
+        public static MatrixUshort operator -(MatrixUshort m1, ushort scalar)
+        {
+            MatrixUshort result = new MatrixUshort(m1.n, m1.m);
+            for (int i = 0; i < m1.n; i++)
+                for (int j = 0; j < m1.m; j++)
+                    result.ShortIntArray[i, j] = (ushort)(m1.ShortIntArray[i, j] - scalar);
+            return result;
+        }
+
+        public static MatrixUshort operator *(MatrixUshort m1, MatrixUshort m2)
+        {
+            if (m1.m != m2.n)
+                return m1; // Повертаємо першу матрицю, якщо розміри не підходять для множення
+            MatrixUshort result = new MatrixUshort(m1.n, m2.m);
+            for (int i = 0; i < m1.n; i++)
+                for (int j = 0; j < m2.m; j++)
+                    for (int k = 0; k < m1.m; k++)
+                        result.ShortIntArray[i, j] += (ushort)(m1.ShortIntArray[i, k] * m2.ShortIntArray[k, j]);
+            return result;
+        }
+
+        public static MatrixUshort operator *(MatrixUshort m1, ushort scalar)
+        {
+            MatrixUshort result = new MatrixUshort(m1.n, m1.m);
+            for (int i = 0; i < m1.n; i++)
+                for (int j = 0; j < m1.m; j++)
+                    result.ShortIntArray[i, j] = (ushort)(m1.ShortIntArray[i, j] * scalar);
+            return result;
+        }
+
+        public static bool operator ==(MatrixUshort m1, MatrixUshort m2)
+        {
+            if (m1.n != m2.n || m1.m != m2.m)
+                return false;
+            for (int i = 0; i < m1.n; i++)
+                for (int j = 0; j < m1.m; j++)
+                    if (m1.ShortIntArray[i, j] != m2.ShortIntArray[i, j])
+                        return false;
+            return true;
+        }
+
+        public static bool operator !=(MatrixUshort m1, MatrixUshort m2)
+        {
+            return !(m1 == m2);
+        }
+
+        // Для порівняння елементів
+        public static bool operator >(MatrixUshort m1, MatrixUshort m2)
+        {
+            if (m1.n != m2.n || m1.m != m2.m)
+                return false;
+            for (int i = 0; i < m1.n; i++)
+                for (int j = 0; j < m1.m; j++)
+                    if (m1.ShortIntArray[i, j] <= m2.ShortIntArray[i, j])
+                        return false;
+            return true;
+        }
+
+        public static bool operator <(MatrixUshort m1, MatrixUshort m2)
+        {
+            if (m1.n != m2.n || m1.m != m2.m)
+                return false;
+            for (int i = 0; i < m1.n; i++)
+                for (int j = 0; j < m1.m; j++)
+                    if (m1.ShortIntArray[i, j] >= m2.ShortIntArray[i, j])
+                        return false;
+            return true;
+        }
+
+        public static bool operator >=(MatrixUshort m1, MatrixUshort m2)
+        {
+            return m1 > m2 || m1 == m2;
+        }
+
+        public static bool operator <=(MatrixUshort m1, MatrixUshort m2)
+        {
+            return m1 < m2 || m1 == m2;
+        }
+    }
+
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            MatrixUshort m1 = new MatrixUshort(3, 3, 1);
+            MatrixUshort m2 = new MatrixUshort(3, 3, 2);
+
+            Console.WriteLine("Матриця 1:");
+            m1.Print();
+
+            Console.WriteLine("Матриця 2:");
+            m2.Print();
+
+            MatrixUshort sum = m1 + m2;
+            Console.WriteLine("Сума матриць:");
+            sum.Print();
+
+            Console.WriteLine("Множення матриць:");
+            MatrixUshort product = m1 * m2;
+            product.Print();
+
+            // Протестуємо інші операції
+            Console.WriteLine("Кількість матриць: " + MatrixUshort.GetCount());
+        }
+    }
+}
