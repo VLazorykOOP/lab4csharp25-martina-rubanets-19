@@ -1,0 +1,645 @@
+using System;
+using System.Linq;
+using System.Collections.Generic;
+
+namespace Lab4CSharp
+{
+    internal class Program
+    {
+        static void Main(string[] args)
+        {
+            Console.WriteLine("Lab 4 CSharp");
+            
+            // Для демонстрації викликаємо Task1 (робота з ромбами)
+            Tasks.Task1();
+            
+            // Для тестування класу векторів розкоментуйте наступні рядки:
+            //Tasks.Task2();
+
+            Console.WriteLine("Натисніть будь-яку клавішу для виходу...");
+            Console.ReadKey();
+        }
+    }
+
+    public static class Tasks
+    {
+        // ****************** Task1 - Робота з ромбами ******************
+        // Завдання: 
+        // 1. Створити клас Romb, який містить захищені поля:
+        //      int a   - сторона,
+        //      int d1  - діагональ,
+        //      int c   - колір.
+        // 2. Реалізувати:
+        //      - Конструктор із заданими параметрами.
+        //      - Метод Show() для виведення даних (включно з периметром і площею).
+        //      - Методи для розрахунку периметра (4*a) та площі 
+        //            (площа = (d1 * d2) / 2, де d2 = sqrt(4*a*a - d1*d1)).
+        //      - Метод IsSquare(), що повертає true, якщо ромб є квадратом (d1 ≈ a*sqrt(2)).
+        //      - Властивості: для a та d1 (читання/запис) і для c (тільки читання).
+        //      - Індексатор: 0 → a, 1 → d1, 2 → c.
+        //      - Перевантаження операторів: ++, -- (збільшення/зменшення a і d1),
+        //            true та false (є квадратом чи ні), оператор * (множення a і d1 на скаляр),
+        //            неявні перетворення в string та з string.
+        public static void Task1()
+        {
+            // Створення масиву ромбів за допомогою конструктора
+            Romb[] rombs =
+            {
+                new Romb(5, 7, 1),
+                new Romb(4, 4, 2),
+                new Romb(6, 8, 3)
+            };
+
+            int squareCount = 0;
+            foreach (var r in rombs)
+            {
+                // Вивід інформації про ромб (метод Show() сам виводить потрібні дані)
+                r.Show();
+                // Використання перевантаження логічних операторів: якщо рома – квадрат, то true
+                if (r) squareCount++;
+                Console.WriteLine(new string('-', 50));
+            }
+            Console.WriteLine($"Кількість квадратів: {squareCount}");
+        }
+        
+        // ****************** Task2 - Робота з вектором ******************
+        // Завдання:
+        // 1. Створити клас VectorUshort із захищеними полями:
+        //      ushort[] ArrayUShort – масив,
+        //      uint num – розмір вектора,
+        //      uint codeError – код помилки,
+        //      static uint num_vs – кількість векторів.
+        // 2. Реалізувати 3 конструктори:
+        //      a) без параметрів (розмір 1, елемент 0),
+        //      b) з параметром розміру (ініціалізація значенням 0),
+        //      c) із заданим розміром і значенням ініціалізації.
+        // 3. Додати деструктор, який повідомляє про знищення вектора.
+        // 4. Реалізувати методи:
+        //      - Input() для введення елементів з клавіатури,
+        //      - Print() для виведення елементів вектора,
+        //      - SetAll(ushort value) для присвоєння всім елементам певного значення,
+        //      - Статичний метод для підрахунку кількості створених векторів.
+        // 5. Властивості: для розміру (тільки читання) та для codeError (читання/запис).
+        // 6. Індексатор, який при невірному індексі встановлює codeError = 1 та повертає 0.
+        // 7. Перевантажити оператори:
+        //      - Унарні: ++, -- (збільшення/зменшення всіх елементів на 1),
+        //                  логічні: true, false, !,
+        //                  побітовий: ~ (побітове заперечення для кожного елементу).
+        //      - Арифметичні (для векторів і для вектора і скаляра): +, -, *, /, %.
+        //      - Побітові: |, ^, & (для двох векторів та для вектора і скаляра),
+        //                  операції зсуву >> і << (для вектора і скаляра типу short).//      - Оператори порівняння: ==, !=, >, >=, <, <= (елементне порівняння).
+        public static void Task2()
+        {
+            // Створюємо приклади векторів
+            VectorUshort vec1 = new VectorUshort(5, 10);
+            Console.WriteLine("Вектор vec1:");
+            vec1.Print();
+            
+            // Протестувати унарні оператори
+            vec1++;
+            Console.WriteLine("Після vec1++:");
+            vec1.Print();
+            
+            VectorUshort vec2 = new VectorUshort(3, 5);
+            Console.WriteLine("Вектор vec2:");
+            vec2.Print();
+            
+            // Арифметична операція: додавання двох векторів
+            VectorUshort vec3 = vec1 + vec2;
+            Console.WriteLine("Результат vec1 + vec2:");
+            vec3.Print();
+            
+            // Арифметична операція: віднімання скаляра
+            VectorUshort vec4 = vec1 - (ushort)3;
+            Console.WriteLine("Результат vec1 - 3:");
+            vec4.Print();
+            
+            // Побітова операція: зсув вправо на 1
+            VectorUshort vec5 = vec1 >> 1;
+            Console.WriteLine("Результат vec1 >> 1:");
+            vec5.Print();
+            
+            // Статична властивість – підрахунок векторів
+            Console.WriteLine($"Кількість векторів: {VectorUshort.GetCount()}");
+        }
+    }
+
+    // =========================== Клас Romb ===========================
+    class Romb
+    {
+        // Захищені поля
+        protected int a;      // Сторона ромба
+        protected int d1;     // Перша діагональ
+        protected int c;      // Колір ромба
+
+        // Конструктор із заданими параметрами
+        public Romb(int a, int d1, int c)
+        {
+            this.a = a;
+            this.d1 = d1;
+            this.c = c;
+        }
+
+        // Властивості: для сторони та діагоналі – читання/запис, для кольору – тільки читання
+        public int Side
+        {
+            get { return a; }
+            set { a = value; }
+        }
+        public int Diagonal
+        {
+            get { return d1; }
+            set { d1 = value; }
+        }
+        public int Color
+        {
+            get { return c; }
+        }
+
+        // Метод для обчислення периметра ромба
+        public int Perimeter() => 4 * a;
+
+        // Метод для обчислення площі ромба
+        // Розраховуємо другу діагональ як d2 = sqrt(4*a^2 - d1^2)
+        // Потім площа = (d1 * d2) / 2.
+        public double Area()
+        {
+            double temp = 4 * a * a - d1 * d1;
+            if (temp < 0)
+                return 0;
+            double d2 = Math.Sqrt(temp);
+            return (d1 * d2) / 2;
+        }
+
+        // Метод, що повертає true, якщо ромб є квадратом, інакше false.
+        // Вважаємо ромб квадратом, якщо d1 ≈ a * sqrt(2) (з певною допускою).
+        public bool IsSquare()
+        {
+            double expected = a * Math.Sqrt(2);
+            return Math.Abs(d1 - expected) < 0.01;
+        }
+
+        // Метод Show() – виводить інформацію про ромб, периметр, площу і чи є він квадратом.
+        public void Show()
+        {
+            Console.WriteLine($"Сторона: {a}, Діагональ: {d1}, Колір: {c}");
+            Console.WriteLine($"Периметр: {Perimeter()}");
+            Console.WriteLine($"Площа: {Area():F2}");
+            Console.WriteLine($"Чи є квадратом: {IsSquare()}");
+        }
+
+        // Індексатор: 0 → a, 1 → d1, 2 → c. При некоректному індексі генерується виняток.
+        public int this[int index]
+        {
+            get
+            {
+                return index switch
+                {
+                    0 => a,
+                    1 => d1,
+                    2 => c,
+                    _ => throw new IndexOutOfRangeException("Невірний індекс")
+                };
+            }
+            set
+            {
+                switch (index)
+                {
+                    case 0: a = value; break;
+                    case 1: d1 = value; break;
+                    case 2: /* поле c тільки для читання */ 
+                        throw new InvalidOperationException("Поле кольору тільки для читання.");
+                    default:
+                        throw new IndexOutOfRangeException("Невірний індекс");
+                }
+            }
+        }
+
+        // Перевантаження унарних операторів ++ та --: одночасно збільшують або зменшують a та d1.
+        public static Romb operator ++(Romb r)
+        {
+            r.a++;
+            r.d1++;
+            return r;
+        }
+        public static Romb operator --(Romb r)
+        {
+            r.a--;
+            r.d1--;
+            return r;
+        }
+
+        // Перевантаження операторів true та false: повертають true, якщо ромб є квадратом.
+        public static bool operator true(Romb r) => r.IsSquare();
+        public static bool operator false(Romb r) => !r.IsSquare();
+
+        // Перевантаження оператора *: множення значень a і d1 на скаляр.
+        public static Romb operator *(Romb r, int scalar)
+        {
+            return new Romb(r.a * scalar, r.d1 * scalar, r.c);
+        }
+
+        // Неявне перетворення типу Romb в string.
+        public static implicit operator string(Romb r)
+        {
+            return $"Сторона: {r.a}, Діагональ: {r.d1}, Колір: {r.c}";
+        }
+        // Неявне перетворення string в Romb. Очікує рядок з трьома цілими числами, розділеними комами.
+        public static implicit operator Romb(string data)
+        {
+            var parts = data.Split(',').Select(s => int.Parse(s.Trim())).ToArray();
+            if (parts.Length != 3)
+                throw new FormatException("Невірний формат рядка");
+            return new Romb(parts[0], parts[1], parts[2]);
+        }
+    }
+
+    // =========================== Клас VectorUshort ===========================
+    class VectorUshort
+    {
+        // Захищені поля
+        protected ushort[] ArrayUShort; // масив елементів
+        protected uint num;             // розмір вектора
+        protected uint codeError;       // код помилки
+        static uint num_vs;             // кількість створених векторів
+
+        // Властивість, що повертає розмір вектора (тільки читання)
+        public uint Size { get { return num; } }
+        // Властивість для поля codeError (читання та запис)
+        public uint CodeError
+        {
+            get { return codeError; }
+            set { codeError = value; }
+        }
+
+        // Індексатор: звернення по індексу до масиву. Якщо індекс невірний,
+        // в поле codeError записується 1, при читанні повертається 0.
+        public ushort this[int index]
+        {
+            get
+            {
+                if (index < 0 || index >= ArrayUShort.Length)
+                {
+                    codeError = 1;
+                    return 0;
+                }
+                return ArrayUShort[index];
+            }
+            set
+            {
+                if (index < 0 || index >= ArrayUShort.Length)
+                    codeError = 1;
+                else
+                    ArrayUShort[index] = value;
+            }
+        }
+
+        // Конструктор без параметрів: розмір 1, елемент 0.
+        public VectorUshort()
+        {
+            num = 1;
+            ArrayUShort = new ushort[num];
+            num_vs++;
+        }
+
+        // Конструктор з параметром розміру: ініціалізація елементів нулем.
+        public VectorUshort(uint size)
+        {
+            num = size;
+            ArrayUShort = new ushort[num];
+            num_vs++;
+        }
+
+        // Конструктор із заданим розміром і значенням ініціалізації.
+        public VectorUshort(uint size, ushort value)
+        {
+            num = size;
+            ArrayUShort = Enumerable.Repeat(value, (int)num).ToArray();
+            num_vs++;
+        }
+
+        // Деструктор, що виводить повідомлення.
+        ~VectorUshort()
+        {
+            Console.WriteLine("Вектор знищено.");
+        }
+
+        // Метод для введення елементів з клавіатури.
+        public void Input()
+        {
+            Console.WriteLine("Введіть елементи вектора (через пробіл):");
+            string input = Console.ReadLine();
+            string[] parts = input.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);for (int i = 0; i < ArrayUShort.Length && i < parts.Length; i++)
+            {
+                if (ushort.TryParse(parts[i], out ushort value))
+                    ArrayUShort[i] = value;
+            }
+        }
+
+        // Метод для виведення елементів вектора.
+        public void Print()
+        {
+            Console.WriteLine("Вміст вектора: " + string.Join(", ", ArrayUShort));
+        }
+
+        // Метод для присвоєння всім елементам заданого значення.
+        public void SetAll(ushort value)
+        {
+            for (int i = 0; i < ArrayUShort.Length; i++)
+                ArrayUShort[i] = value;
+        }
+
+        // Статичний метод для повернення кількості створених векторів.
+        public static uint GetCount() => num_vs;
+
+        // =================== Перевантаження операторів ===================
+
+        // Унарні оператори ++ і --
+        public static VectorUshort operator ++(VectorUshort v)
+        {
+            for (int i = 0; i < v.ArrayUShort.Length; i++)
+                v.ArrayUShort[i]++;
+            return v;
+        }
+        public static VectorUshort operator --(VectorUshort v)
+        {
+            for (int i = 0; i < v.ArrayUShort.Length; i++)
+                v.ArrayUShort[i]--;
+            return v;
+        }
+
+        // Перевантаження операторів true і false: повертають true,
+        // якщо розмір не дорівнює нулю і всі елементи відмінні від нуля.
+        public static bool operator true(VectorUshort v)
+        {
+            if (v.ArrayUShort.Length == 0) return false;
+            foreach (var e in v.ArrayUShort)
+                if (e == 0) return false;
+            return true;
+        }
+        public static bool operator false(VectorUshort v) => !(v);
+
+        // Унарна логічна операція !: повертає true, якщо вектор "порожній" або всі елементи рівні 0.
+        public static bool operator !(VectorUshort v)
+        {
+            if (v.ArrayUShort.Length == 0) return true;
+            foreach (var e in v.ArrayUShort)
+                if (e != 0) return false;
+            return true;
+        }
+
+        // Унарна побітова операція ~: повертає побітове заперечення кожного елементу.
+        public static VectorUshort operator ~(VectorUshort v)
+        {
+            VectorUshort result = new VectorUshort(v.num);
+            for (int i = 0; i < v.ArrayUShort.Length; i++)
+                result.ArrayUShort[i] = (ushort)(~v.ArrayUShort[i]);
+            return result;
+        }
+
+        // Арифметичні оператори для двох векторів (елементне додавання, віднімання, множення, ділення, остача від ділення)
+        public static VectorUshort operator +(VectorUshort v1, VectorUshort v2)
+        {
+            int max = Math.Max(v1.ArrayUShort.Length, v2.ArrayUShort.Length);
+            VectorUshort result = new VectorUshort((uint)max);
+            for (int i = 0; i < max; i++)
+            {
+                ushort e1 = i < v1.ArrayUShort.Length ? v1.ArrayUShort[i] : (ushort)0;
+                ushort e2 = i < v2.ArrayUShort.Length ? v2.ArrayUShort[i] : (ushort)0;
+                result.ArrayUShort[i] = (ushort)(e1 + e2);
+            }
+            return result;
+        }
+        public static VectorUshort operator +(VectorUshort v, ushort scalar)
+        {
+            VectorUshort result = new VectorUshort(v.num);
+            for (int i = 0; i < v.ArrayUShort.Length; i++)
+                result.ArrayUShort[i] = (ushort)(v.ArrayUShort[i] + scalar);
+            return result;
+        }
+        public static VectorUshort operator +(ushort scalar, VectorUshort v) => v + scalar;
+
+        public static VectorUshort operator -(VectorUshort v1, VectorUshort v2)
+        {
+            int max = Math.Max(v1.ArrayUShort.Length, v2.ArrayUShort.Length);
+            VectorUshort result = new VectorUshort((uint)max);
+            for (int i = 0; i < max; i++)
+            {
+                ushort e1 = i < v1.ArrayUShort.Length ? v1.ArrayUShort[i] : (ushort)0;
+                ushort e2 = i < v2.ArrayUShort.Length ? v2.ArrayUShort[i] : (ushort)0;
+                result.ArrayUShort[i] = (ushort)(e1 - e2);
+            }return result;
+        }
+        public static VectorUshort operator -(VectorUshort v, ushort scalar)
+        {
+            VectorUshort result = new VectorUshort(v.num);
+            for (int i = 0; i < v.ArrayUShort.Length; i++)
+                result.ArrayUShort[i] = (ushort)(v.ArrayUShort[i] - scalar);
+            return result;
+        }
+        public static VectorUshort operator -(ushort scalar, VectorUshort v)
+        {
+            VectorUshort result = new VectorUshort(v.num);
+            for (int i = 0; i < v.ArrayUShort.Length; i++)
+                result.ArrayUShort[i] = (ushort)(scalar - v.ArrayUShort[i]);
+            return result;
+        }
+
+        public static VectorUshort operator *(VectorUshort v1, VectorUshort v2)
+        {
+            int max = Math.Max(v1.ArrayUShort.Length, v2.ArrayUShort.Length);
+            VectorUshort result = new VectorUshort((uint)max);
+            for (int i = 0; i < max; i++)
+            {
+                ushort e1 = i < v1.ArrayUShort.Length ? v1.ArrayUShort[i] : (ushort)0;
+                ushort e2 = i < v2.ArrayUShort.Length ? v2.ArrayUShort[i] : (ushort)0;
+                result.ArrayUShort[i] = (ushort)(e1 * e2);
+            }
+            return result;
+        }
+        public static VectorUshort operator *(VectorUshort v, ushort scalar)
+        {
+            VectorUshort result = new VectorUshort(v.num);
+            for (int i = 0; i < v.ArrayUShort.Length; i++)
+                result.ArrayUShort[i] = (ushort)(v.ArrayUShort[i] * scalar);
+            return result;
+        }
+        public static VectorUshort operator *(ushort scalar, VectorUshort v) => v * scalar;
+
+        public static VectorUshort operator /(VectorUshort v1, VectorUshort v2)
+        {
+            int max = Math.Max(v1.ArrayUShort.Length, v2.ArrayUShort.Length);
+            VectorUshort result = new VectorUshort((uint)max);
+            for (int i = 0; i < max; i++)
+            {
+                ushort e1 = i < v1.ArrayUShort.Length ? v1.ArrayUShort[i] : (ushort)0;
+                // Якщо дільник дорівнює 0, використовуємо 1
+                ushort e2 = (i < v2.ArrayUShort.Length && v2.ArrayUShort[i] != 0) ? v2.ArrayUShort[i] : (ushort)1;
+                result.ArrayUShort[i] = (ushort)(e1 / e2);
+            }
+            return result;
+        }
+        public static VectorUshort operator /(VectorUshort v, ushort scalar)
+        {
+            VectorUshort result = new VectorUshort(v.num);
+            for (int i = 0; i < v.ArrayUShort.Length; i++)
+                result.ArrayUShort[i] = (ushort)(v.ArrayUShort[i] / (scalar == 0 ? 1 : scalar));
+            return result;
+        }
+
+        public static VectorUshort operator %(VectorUshort v1, VectorUshort v2)
+        {
+            int max = Math.Max(v1.ArrayUShort.Length, v2.ArrayUShort.Length);
+            VectorUshort result = new VectorUshort((uint)max);
+            for (int i = 0; i < max; i++)
+            {
+                ushort e1 = i < v1.ArrayUShort.Length ? v1.ArrayUShort[i] : (ushort)0;
+                ushort e2 = (i < v2.ArrayUShort.Length && v2.ArrayUShort[i] != 0) ? v2.ArrayUShort[i] : (ushort)1;
+                result.ArrayUShort[i] = (ushort)(e1 % e2);
+            }
+            return result;
+        }
+        public static VectorUshort operator %(VectorUshort v, ushort scalar)
+        {
+            VectorUshort result = new VectorUshort(v.num);
+            for (int i = 0; i < v.ArrayUShort.Length; i++)
+                result.ArrayUShort[i] = (ushort)(v.ArrayUShort[i] % (scalar == 0 ? 1 : scalar));
+            return result;
+        }
+
+        // Побітові оператори: |, ^, & для двох векторів та для вектора і скаляра.
+        public static VectorUshort operator |(VectorUshort v1, VectorUshort v2)
+        {
+            int max = Math.Max(v1.ArrayUShort.Length, v2.ArrayUShort.Length);
+            VectorUshort result = new VectorUshort((uint)max);
+            for (int i = 0; i < max; i++)
+            {
+                ushort e1 = i < v1.ArrayUShort.Length ? v1.ArrayUShort[i] : (ushort)0;
+                ushort e2 = i < v2.ArrayUShort.Length ? v2.ArrayUShort[i] : (ushort)0;
+                result.ArrayUShort[i] = (ushort)(e1 | e2);
+            }
+            return result;
+        }
+        public static VectorUshort operator |(VectorUshort v, ushort scalar)
+        {
+            VectorUshort result = new VectorUshort(v.num);
+            for (int i = 0; i < v.ArrayUShort.Length; i++)
+                result.ArrayUShort[i] = (ushort)(v.ArrayUShort[i] | scalar);
+            return result;
+        }
+        public static VectorUshort operator |(ushort scalar, VectorUshort v) => v | scalar;
+
+        public static VectorUshort operator ^(VectorUshort v1, VectorUshort v2)
+        {
+            int max = Math.Max(v1.ArrayUShort.Length, v2.ArrayUShort.Length);
+            VectorUshort result = new VectorUshort((uint)max);
+            for (int i = 0; i < max; i++)
+            {
+                ushort e1 = i < v1.ArrayUShort.Length ? v1.ArrayUShort[i] : (ushort)0;
+                ushort e2 = i < v2.ArrayUShort.Length ? v2.ArrayUShort[i] : (ushort)0;
+                result.ArrayUShort[i] = (ushort)(e1 ^ e2);
+            }
+            return result;
+        }
+        public static VectorUshort operator ^(VectorUshort v, ushort scalar)
+        {
+            VectorUshort result = new VectorUshort(v.num);
+            for (int i = 0; i < v.ArrayUShort.Length; i++)
+                result.ArrayUShort[i] = (ushort)(v.ArrayUShort[i] ^ scalar);
+            return result;
+        }
+        public static VectorUshort operator ^(ushort scalar, VectorUshort v) => v ^ scalar;
+
+        public static VectorUshort operator &(VectorUshort v1, VectorUshort v2)
+        {
+            int max = Math.Max(v1.ArrayUShort.Length, v2.ArrayUShort.Length);
+            VectorUshort result = new VectorUshort((uint)max);
+            for (int i = 0; i < max; i++)
+            {
+                ushort e1 = i < v1.ArrayUShort.Length ? v1.ArrayUShort[i] : (ushort)0;
+                ushort e2 = i < v2.ArrayUShort.Length ? v2.ArrayUShort[i] : (ushort)0;
+                result.ArrayUShort[i] = (ushort)(e1 & e2);
+            }
+            return result;
+        }
+        public static VectorUshort operator &(VectorUshort v, ushort scalar)
+        {
+            VectorUshort result = new VectorUshort(v.num);
+            for (int i = 0; i < v.ArrayUShort.Length; i++)
+                result.ArrayUShort[i] = (ushort)(v.ArrayUShort[i] & scalar);
+            return result;
+        }
+        public static VectorUshort operator &(ushort scalar, VectorUshort v) => v & scalar;
+
+        // Побітові оператори зсуву >> та << для вектора і скаляра типу short.
+        public static VectorUshort operator >>(VectorUshort v, short shift)
+        {
+            VectorUshort result = new VectorUshort(v.num);
+            for (int i = 0; i < v.ArrayUShort.Length; i++)
+                result.ArrayUShort[i] = (ushort)(v.ArrayUShort[i] >> shift);
+            return result;
+        }
+        public static VectorUshort operator <<(VectorUshort v, short shift)
+        {
+            VectorUshort result = new VectorUshort(v.num);
+            for (int i = 0; i < v.ArrayUShort.Length; i++)
+                result.ArrayUShort[i] = (ushort)(v.ArrayUShort[i] << shift);
+            return result;
+        }
+
+        // Оператори порівняння: ==, != – елементне порівняння.
+        public static bool operator ==(VectorUshort v1, VectorUshort v2)
+        {
+            if (v1.num != v2.num) return false;
+            for (int i = 0; i < v1.ArrayUShort.Length; i++)
+                if (v1.ArrayUShort[i] != v2.ArrayUShort[i])
+                    return false;
+            return true;
+        }
+        public static bool operator !=(VectorUshort v1, VectorUshort v2) => !(v1 == v2);
+
+        // Оператори порівняння >, >=, <, <= – порівнюємо кожну пару елементів.
+        public static bool operator >(VectorUshort v1, VectorUshort v2)
+        {
+            int min = Math.Min(v1.ArrayUShort.Length, v2.ArrayUShort.Length);
+            for (int i = 0; i < min; i++)
+                if (!(v1.ArrayUShort[i] > v2.ArrayUShort[i])) return false;return true;
+        }
+        public static bool operator >=(VectorUshort v1, VectorUshort v2)
+        {
+            int min = Math.Min(v1.ArrayUShort.Length, v2.ArrayUShort.Length);
+            for (int i = 0; i < min; i++)
+                if (!(v1.ArrayUShort[i] >= v2.ArrayUShort[i])) return false;
+            return true;
+        }
+        public static bool operator <(VectorUshort v1, VectorUshort v2)
+        {
+            int min = Math.Min(v1.ArrayUShort.Length, v2.ArrayUShort.Length);
+            for (int i = 0; i < min; i++)
+                if (!(v1.ArrayUShort[i] < v2.ArrayUShort[i])) return false;
+            return true;
+        }
+        public static bool operator <=(VectorUshort v1, VectorUshort v2)
+        {
+            int min = Math.Min(v1.ArrayUShort.Length, v2.ArrayUShort.Length);
+            for (int i = 0; i < min; i++)
+                if (!(v1.ArrayUShort[i] <= v2.ArrayUShort[i])) return false;
+            return true;
+        }
+
+        // Перевизначення методів Equals і GetHashCode.
+        public override bool Equals(object obj)
+        {
+            if (obj is VectorUshort other)
+                return this == other;
+            return false;
+        }
+        public override int GetHashCode()
+        {
+            int hash = 17;
+            foreach (var e in ArrayUShort)
+                hash = hash * 23 + e.GetHashCode();
+            return hash;
+        }
+    }
+}
